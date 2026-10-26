@@ -1,0 +1,5 @@
+accounts.sqlite3
+accounts.sqlite3-shm
+accounts.sqlite3-wal
+auth.json
+__pycache__/

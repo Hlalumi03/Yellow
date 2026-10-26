@@ -1,7 +1,8 @@
-<section class="card shadow-sm border-0">
+<section class="card auth-card border-0">
   <div class="card-body p-4 p-md-5">
-    <h2 class="h4 mb-4">Create your account</h2>
-    <!-- {{notice}} -->
+    <p class="auth-eyebrow mb-2">JOIN THE COMMUNITY</p>
+    <h2 class="h3 mb-4">Create your account</h2>
+    {{notice}}
     <form method="post" action="/signup">
       <input type="hidden" name="csrf_token" value="{{csrf_token}}">
       <div class="row g-3">
