@@ -322,7 +322,7 @@ def dashboard_page(user: UserRecord, csrf_token: str) -> bytes:
         "home.html",
         csrf_token=escape(csrf_token),
         name=escape(user["name"]),
-        email=escape(user["email"]),
+        initial=escape(user["name"][:1].upper()),
     )
     return content.encode("utf-8")
 
