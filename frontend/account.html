@@ -1,0 +1,17 @@
+<section class="card shadow-sm border-0">
+  <div class="card-body p-4 p-md-5 text-center">
+    <div class="text-success mb-3" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor"
+           class="bi bi-check-circle" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+        <path d="m10.97 4.97-.02.022-3.473 4.425-1.485-1.486a.75.75 0 0 0-1.06 1.06l2.05 2.05a.75.75 0 0 0 1.079-.02l4.001-5.001a.75.75 0 0 0-1.09-1.05"/>
+      </svg>
+    </div>
+    <h2 class="h4">You're signed in, {{name}}.</h2>
+    <p class="text-body-secondary">{{email}}</p>
+    <form method="post" action="/logout" class="mt-4">
+      <input type="hidden" name="csrf_token" value="{{csrf_token}}">
+      <button class="btn btn-outline-secondary" type="submit">Sign out</button>
+    </form>
+  </div>
+</section>
