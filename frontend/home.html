@@ -3,27 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Overview - Yellow</title>
+  <title>Store admin - Yellow</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/style.css" rel="stylesheet">
 </head>
 <body class="home-page">
   <div class="dashboard-shell">
-    <aside class="dashboard-sidebar" aria-label="Main navigation">
-      <a class="dashboard-brand" href="/account" aria-label="Yellow overview">
+    <aside class="dashboard-sidebar" aria-label="Admin navigation">
+      <a class="dashboard-brand" href="/account" aria-label="Yellow store admin">
         <span class="dashboard-brand-mark" aria-hidden="true">Y</span>
         <span>yellow<span class="brand-period">.</span></span>
       </a>
-      <span class="sidebar-label">WORKSPACE</span>
+      <span class="sidebar-label">STORE ADMIN</span>
       <nav class="dashboard-nav">
         <a class="nav-item nav-item-active" href="#overview" aria-current="page"><span aria-hidden="true">▦</span>Overview</a>
-        <a class="nav-item" href="#pending-actions"><span aria-hidden="true">↗</span>Orders<span class="nav-count">4</span></a>
-        <a class="nav-item" href="#top-sellers"><span aria-hidden="true">◇</span>Products</a>
-        <a class="nav-item" href="#sales"><span aria-hidden="true">⌁</span>Analytics</a>
-        <a class="nav-item" href="#activity"><span aria-hidden="true">◷</span>Activity</a>
+        <a class="nav-item" href="#orders"><span aria-hidden="true">↗</span>Orders</a>
+        <a class="nav-item" href="#customers"><span aria-hidden="true">♙</span>Customers &amp; points</a>
       </nav>
       <div class="sidebar-bottom">
-        <div class="workspace-note"><span class="status-dot"></span><span>Sample workspace</span></div>
+        <div class="workspace-note"><span class="status-dot"></span><span>Live store data</span></div>
         <form method="post" action="/logout">
           <input type="hidden" name="csrf_token" value="{{csrf_token}}">
           <button class="signout-button" type="submit"><span aria-hidden="true">↪</span>Sign out</button>
@@ -33,120 +31,68 @@
 
     <main class="dashboard-main" id="overview">
       <header class="dashboard-topbar">
-        <div class="breadcrumb">Workspace <span>/</span> <strong>Overview</strong></div>
+        <div class="breadcrumb">Yellow <span>/</span> <strong>Store admin</strong></div>
         <div class="topbar-user"><span class="topbar-avatar">{{initial}}</span><span>{{name}}</span></div>
       </header>
 
       <div class="dashboard-content">
         <div class="dashboard-heading">
           <div>
-            <span class="eyebrow">MONDAY, OCTOBER 26</span>
-            <h1>Good morning, {{name}}</h1>
-            <p>Here’s what’s happening with your business today.</p>
+            <span class="eyebrow">STORE OVERVIEW</span>
+            <h1>Welcome back, {{name}}</h1>
+            <p>Customer accounts and orders placed in your online store.</p>
           </div>
-          <span class="sample-badge"><span class="status-dot"></span>Sample data</span>
+          <span class="sample-badge"><span class="status-dot"></span>Storefront active</span>
         </div>
 
-        <section class="quick-actions" aria-label="Quick actions">
-          <a href="#pending-actions" class="quick-action quick-action-primary"><span aria-hidden="true">＋</span>Review orders</a>
-          <a href="#top-sellers" class="quick-action"><span aria-hidden="true">＋</span>Manage products</a>
-          <a href="#sales" class="quick-action"><span aria-hidden="true">↗</span>View analytics</a>
-          <a href="#activity" class="quick-action"><span aria-hidden="true">◷</span>Recent activity</a>
-        </section>
-
-        <section class="metric-grid" aria-label="Business statistics">
+        <section class="metric-grid" aria-label="Store statistics">
           <article class="metric-panel">
-            <div class="metric-label">TOTAL REVENUE <span class="metric-icon metric-icon-yellow" aria-hidden="true">$</span></div>
-            <div class="metric-value">$48,294<span class="metric-change">↑ 12.8%</span></div>
-            <div class="metric-footnote">vs. previous 30 days</div>
+            <div class="metric-label">ORDER VALUE <span class="metric-icon metric-icon-yellow" aria-hidden="true">$</span></div>
+            <div class="metric-value">{{revenue}}</div>
+            <div class="metric-footnote">Total value of placed orders</div>
           </article>
           <article class="metric-panel">
-            <div class="metric-label">TOTAL ORDERS <span class="metric-icon metric-icon-blue" aria-hidden="true">↗</span></div>
-            <div class="metric-value">1,284<span class="metric-change">↑ 8.2%</span></div>
-            <div class="metric-footnote">vs. previous 30 days</div>
+            <div class="metric-label">ORDERS <span class="metric-icon metric-icon-blue" aria-hidden="true">↗</span></div>
+            <div class="metric-value">{{order_count}}</div>
+            <div class="metric-footnote">All time</div>
           </article>
           <article class="metric-panel">
-            <div class="metric-label">AVERAGE ORDER <span class="metric-icon metric-icon-coral" aria-hidden="true">◉</span></div>
-            <div class="metric-value">$37.61<span class="metric-change">↑ 3.4%</span></div>
-            <div class="metric-footnote">vs. previous 30 days</div>
+            <div class="metric-label">CUSTOMERS <span class="metric-icon metric-icon-coral" aria-hidden="true">♙</span></div>
+            <div class="metric-value">{{customer_count}}</div>
+            <div class="metric-footnote">Registered customer accounts</div>
           </article>
           <article class="metric-panel">
-            <div class="metric-label">CONVERSION RATE <span class="metric-icon metric-icon-green" aria-hidden="true">％</span></div>
-            <div class="metric-value">3.24%<span class="metric-change metric-change-down">↓ 0.6%</span></div>
-            <div class="metric-footnote">vs. previous 30 days</div>
+            <div class="metric-label">PRODUCTS <span class="metric-icon metric-icon-green" aria-hidden="true">◇</span></div>
+            <div class="metric-value">{{product_count}}</div>
+            <div class="metric-footnote">Available in the storefront</div>
           </article>
         </section>
 
-        <section class="dashboard-grid dashboard-grid-primary" aria-label="Sales analytics">
-          <article class="dashboard-panel sales-panel" id="sales">
-            <div class="panel-heading">
-              <div><h2>Revenue over time</h2><p>Sales performance for the last 30 days</p></div>
-              <span class="range-label">Last 30 days <span aria-hidden="true">⌄</span></span>
-            </div>
-            <div class="chart-summary"><strong>$48,294</strong><span class="metric-change">↑ 12.8%</span><span class="chart-summary-note">compared to previous period</span></div>
-            <div class="sales-chart-wrap">
-              <div class="chart-y-labels" aria-hidden="true"><span>$6k</span><span>$4k</span><span>$2k</span><span>$0</span></div>
-              <svg class="sales-chart" viewBox="0 0 720 220" role="img" aria-label="Revenue trend rising through October, with a brief dip in the third week">
-                <defs>
-                  <linearGradient id="revenue-fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#f2c84b" stop-opacity=".3"/><stop offset="100%" stop-color="#f2c84b" stop-opacity="0"/></linearGradient>
-                </defs>
-                <path class="chart-gridline" d="M0 22H720 M0 78H720 M0 134H720 M0 190H720"/>
-                <path class="chart-area" d="M0 162 C30 154 42 142 65 148 S101 166 130 132 S170 122 194 130 S233 96 258 108 S296 122 322 94 S362 84 387 97 S421 114 451 75 S490 64 516 81 S555 92 580 55 S619 49 646 60 S688 37 720 29 L720 190 L0 190Z"/>
-                <path class="chart-line" d="M0 162 C30 154 42 142 65 148 S101 166 130 132 S170 122 194 130 S233 96 258 108 S296 122 322 94 S362 84 387 97 S421 114 451 75 S490 64 516 81 S555 92 580 55 S619 49 646 60 S688 37 720 29"/>
-                <circle class="chart-point" cx="720" cy="29" r="5"/>
-              </svg>
-            </div>
-            <div class="chart-x-labels" aria-hidden="true"><span>Oct 1</span><span>Oct 6</span><span>Oct 11</span><span>Oct 16</span><span>Oct 21</span><span>Oct 26</span></div>
-          </article>
-
-          <article class="dashboard-panel channel-panel">
-            <div class="panel-heading"><div><h2>Sales by channel</h2><p>Where customers find you</p></div><button class="more-button" type="button" aria-label="More sales channel options">···</button></div>
-            <div class="channel-total"><strong>$48,294</strong><span>total revenue</span></div>
-            <div class="channel-list">
-              <div class="channel-row"><div class="channel-meta"><span><i class="channel-dot channel-dot-yellow"></i>Direct</span><strong>$21,250 <small>44%</small></strong></div><div class="channel-track"><span class="channel-fill channel-fill-yellow channel-width-44"></span></div></div>
-              <div class="channel-row"><div class="channel-meta"><span><i class="channel-dot channel-dot-blue"></i>Social</span><strong>$14,488 <small>30%</small></strong></div><div class="channel-track"><span class="channel-fill channel-fill-blue channel-width-30"></span></div></div>
-              <div class="channel-row"><div class="channel-meta"><span><i class="channel-dot channel-dot-coral"></i>Search</span><strong>$8,693 <small>18%</small></strong></div><div class="channel-track"><span class="channel-fill channel-fill-coral channel-width-18"></span></div></div>
-              <div class="channel-row"><div class="channel-meta"><span><i class="channel-dot channel-dot-green"></i>Referral</span><strong>$3,863 <small>8%</small></strong></div><div class="channel-track"><span class="channel-fill channel-fill-green channel-width-8"></span></div></div>
-            </div>
-            <a class="panel-link" href="#sales">Explore analytics <span aria-hidden="true">→</span></a>
-          </article>
+        <section class="dashboard-panel admin-table-panel" id="orders">
+          <div class="panel-heading">
+            <div><h2>Recent orders</h2><p>Orders placed by customers in your store</p></div>
+          </div>
+          <div class="seller-table-wrap">
+            <table class="seller-table admin-table">
+              <thead><tr><th>ORDER</th><th>CUSTOMER</th><th>ITEMS</th><th>TOTAL</th><th>PAYMENT</th><th>STATUS</th></tr></thead>
+              <tbody>{{order_rows}}</tbody>
+            </table>
+          </div>
+          <p class="payment-note">Payment options are recorded with each order, but payments are not processed online.</p>
         </section>
 
-        <section class="dashboard-grid dashboard-grid-secondary" aria-label="Business activity and actions">
-          <article class="dashboard-panel sellers-panel" id="top-sellers">
-            <div class="panel-heading"><div><h2>Top sellers</h2><p>Your best-performing products this month</p></div><a class="text-link" href="#top-sellers">View all <span aria-hidden="true">→</span></a></div>
-            <div class="seller-table-wrap">
-              <table class="seller-table">
-                <thead><tr><th>PRODUCT</th><th>SOLD</th><th>REVENUE</th></tr></thead>
-                <tbody>
-                  <tr><td><span class="product-swatch swatch-yellow">S</span><span class="product-name">Sunday ceramics mug<small>Home &amp; living</small></span></td><td>248</td><td>$6,200</td></tr>
-                  <tr><td><span class="product-swatch swatch-blue">L</span><span class="product-name">Linen market tote<small>Accessories</small></span></td><td>186</td><td>$4,650</td></tr>
-                  <tr><td><span class="product-swatch swatch-coral">C</span><span class="product-name">Coastline candle set<small>Home &amp; living</small></span></td><td>142</td><td>$3,550</td></tr>
-                  <tr><td><span class="product-swatch swatch-green">D</span><span class="product-name">Daily notes journal<small>Stationery</small></span></td><td>119</td><td>$2,975</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </article>
-
-          <article class="dashboard-panel pending-panel" id="pending-actions">
-            <div class="panel-heading"><div><h2>Pending actions</h2><p>Things that need your attention</p></div><span class="pending-count">4</span></div>
-            <a class="pending-item" href="#pending-actions"><span class="pending-icon pending-icon-yellow" aria-hidden="true">↗</span><span><strong>Fulfill new orders</strong><small>2 orders are ready to ship</small></span><span class="pending-arrow" aria-hidden="true">→</span></a>
-            <a class="pending-item" href="#pending-actions"><span class="pending-icon pending-icon-coral" aria-hidden="true">↻</span><span><strong>Review a return request</strong><small>Request #YL-1048 · 2 hours ago</small></span><span class="pending-arrow" aria-hidden="true">→</span></a>
-            <a class="pending-item" href="#pending-actions"><span class="pending-icon pending-icon-blue" aria-hidden="true">!</span><span><strong>Restock a top seller</strong><small>Sunday ceramics mug · low stock</small></span><span class="pending-arrow" aria-hidden="true">→</span></a>
-          </article>
-
-          <article class="dashboard-panel activity-panel" id="activity">
-            <div class="panel-heading"><div><h2>Live activity</h2><p>Recent events across your store</p></div><span class="live-indicator"><i></i>LIVE</span></div>
-            <div class="activity-list">
-              <div class="activity-item"><span class="activity-avatar activity-avatar-yellow">AM</span><span class="activity-copy"><strong>New order <b>#YL-1052</b></strong><small>Alex Morgan · Sunday ceramics mug</small></span><span class="activity-time">2m</span></div>
-              <div class="activity-item"><span class="activity-avatar activity-avatar-blue">JP</span><span class="activity-copy"><strong>Payment received</strong><small>Jordan Park · <b>$86.00</b></small></span><span class="activity-time">18m</span></div>
-              <div class="activity-item"><span class="activity-avatar activity-avatar-coral">SK</span><span class="activity-copy"><strong>New customer</strong><small>Sam Kim · from Instagram</small></span><span class="activity-time">42m</span></div>
-              <div class="activity-item"><span class="activity-avatar activity-avatar-green">TR</span><span class="activity-copy"><strong>Order delivered</strong><small>Taylor Reed · order #YL-1047</small></span><span class="activity-time">1h</span></div>
-            </div>
-            <a class="panel-link" href="#activity">View activity log <span aria-hidden="true">→</span></a>
-          </article>
+        <section class="dashboard-panel admin-table-panel" id="customers">
+          <div class="panel-heading">
+            <div><h2>Recent customers</h2><p>Customer information collected through sign-up</p></div>
+          </div>
+          <div class="seller-table-wrap">
+            <table class="seller-table admin-table">
+              <thead><tr><th>NAME</th><th>EMAIL</th><th>JOINED</th><th>POINTS</th></tr></thead>
+              <tbody>{{customer_rows}}</tbody>
+            </table>
+          </div>
         </section>
-        <footer class="dashboard-footer">Business analytics shown with sample data.</footer>
+        <footer class="dashboard-footer">Store totals reflect orders recorded by this application.</footer>
       </div>
     </main>
   </div>
