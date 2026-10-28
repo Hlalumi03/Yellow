@@ -1,39 +1,99 @@
-# Yellow Store
+# Yellow Clothing
 
-Yellow is a local storefront prototype with customer accounts, a sample catalog,
-cart and order recording, and a role-protected admin dashboard.
+Yellow is a server-rendered clothing storefront with a versioned JSON API. The
+backend is organized as a small Clean Architecture application: domain rules do
+not depend on FastAPI or SQLAlchemy, application services depend on repository
+ports, and infrastructure provides SQLAlchemy implementations.
+
+## Architecture
+
+```text
+backend/
+  domain/          Entities, enums, and business exceptions
+  application/     Use cases and repository protocols
+  infrastructure/  SQLAlchemy models, sessions, and repository adapters
+  presentation/    FastAPI app factory, API schemas, routes, and web pages
+migrations/        Alembic environment and versioned schema revisions
+frontend/          Jinja2 templates and storefront styles
+tests/             Isolated API and workflow tests
+```
 
 ## Run locally
 
-Run `python main.py` from the project directory and open
-`http://127.0.0.1:8000`. The app opens on sign-in, and restarting the server
-invalidates existing sessions so every start requires a fresh sign-in. New
-customers can create an account from the sign-in page.
+Use Python 3.11 or newer. From the project root:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+Copy-Item .env.example .env
+alembic upgrade head
+python main.py
+```
+
+Open `http://127.0.0.1:8000`. Interactive API documentation is available at
+`/api/docs`; the liveness endpoint is `/healthz`. For a production server, use
+`uvicorn backend.app:app --host 0.0.0.0 --port 8000` behind a TLS-terminating
+reverse proxy and a process manager.
+
+## Configuration
+
+Settings are read from environment variables or `.env`:
+
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `DATABASE_URL` | SQLAlchemy database URL | `yellow_store.sqlite3` |
+| `ENVIRONMENT` | Deployment environment label | `development` |
+| `SECURE_COOKIES` | Mark the session cookie Secure | `false` |
+| `ALLOWED_ORIGINS` | Optional JSON list of trusted browser origins | `[]` |
+
+Use PostgreSQL for a multi-worker deployment. Set `SECURE_COOKIES=true` when
+serving through HTTPS. Apply schema changes with `alembic upgrade head` during
+deployment; the application does not mutate schema at startup.
 
 ## Accounts and admin access
 
-The existing store-owner account selected for this project is promoted to the
-admin role once when the application initializes its database. Existing and
-new non-admin accounts use the customer storefront. Public sign-up always
-creates customer accounts; it cannot grant admin access.
+Public sign-up always creates customer accounts. Promote a separately created
+owner account with `python -m backend.cli make-admin owner@example.com`. Do not
+use customer sign-up as an administrator bootstrap mechanism.
 
-The admin dashboard at `/account` shows customer registrations, recorded
-orders, product counts, and the total value of orders. Order totals are not
-proof of payment.
+## API
 
-## Store and checkout
+All JSON resources are under `/api/v1`:
 
-The starter catalog contains 14 products, including a ceramics mug, linen tote,
-candle set, stationery, and home goods. Customers can add in-stock products to
-a cart and place an order.
-Checkout records the customer, items, quantities, order value, and time, and
-reserves the ordered stock. At checkout, customers can select cash on delivery,
-bank transfer, or pay on pickup; the selected method is saved with the order,
-but this prototype does not process payments or arrange delivery. Customers
-earn 1 reward point per whole dollar in an order, credited when the order is
-placed. The customer storefront displays the current points balance.
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/products` | Browse products; accepts `category`, `limit`, and `offset` |
+| `GET` | `/products/{product_id}` | Get a product |
+| `GET` | `/auth/csrf` | Start an anonymous session and retrieve a CSRF token |
+| `POST` | `/auth/signup` | Create an account and start an authenticated session |
+| `POST` | `/auth/session` | Sign in |
+| `DELETE` | `/auth/session` | Sign out |
+| `GET` | `/cart` | Get the signed-in customer’s cart |
+| `POST` | `/cart/items` | Add a product and quantity |
+| `DELETE` | `/cart/items/{product_id}` | Remove a cart line |
+| `GET` | `/orders` | List the signed-in customer’s orders; accepts `limit` and `offset` |
+| `POST` | `/orders` | Place an order from the current cart |
+| `GET` | `/orders/{order_id}` | Get an order owned by the signed-in customer |
 
-The development server binds to localhost and is not configured for public
-internet deployment. A production launch needs a production web server, HTTPS,
-deployment-specific admin provisioning, and a payment provider if online
-payments are required.
+Authentication uses an HttpOnly session cookie. Send the returned CSRF token in
+`X-CSRF-Token` for state-changing API requests. Successful order creation
+returns `201 Created`; validation and business errors use structured HTTP
+responses.
+
+## Scope before a public launch
+
+The included payment choices record an order only; there is no payment
+processor, shipping integration, tax calculation, returns workflow, or
+inventory-adjustment audit trail. Product variants (size/color), customer
+addresses, email verification, password recovery, rate limiting, observability,
+and deployment-specific secrets still need to be designed for the store’s
+actual requirements. The sample catalog is seeded by the first Alembic
+revision. Review security, privacy, and operational requirements before
+accepting real customer data or payments.
+
+## Tests
+
+```powershell
+python -m unittest discover -s tests -v
+```

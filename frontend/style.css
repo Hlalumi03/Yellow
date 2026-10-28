@@ -1,18 +1,18 @@
 :root {
   color-scheme: light;
-  --ink: #25234a;
-  --muted: #74738e;
-  --purple: #6654e8;
-  --pink: #f45b9a;
+  --ink: #28352d;
+  --muted: #707a71;
+  --brand: #3e6b52;
+  --accent: #d66f54;
 }
 
 body {
   min-height: 100vh;
   color: var(--ink);
   background:
-    radial-gradient(ellipse at 12% 12%, rgba(255, 207, 115, 0.35), transparent 34rem),
-    radial-gradient(ellipse at 88% 82%, rgba(255, 133, 190, 0.25), transparent 35rem),
-    linear-gradient(135deg, #f7f5ff 0%, #effbff 52%, #fff6f3 100%);
+    radial-gradient(ellipse at 12% 12%, rgba(241, 207, 113, 0.32), transparent 34rem),
+    radial-gradient(ellipse at 88% 82%, rgba(138, 177, 149, 0.23), transparent 35rem),
+    linear-gradient(135deg, #f7f5ed 0%, #eff4ef 52%, #faf2ed 100%);
 }
 
 .auth-shell {
@@ -40,21 +40,21 @@ body {
   place-items: center;
   border-radius: 1.1rem;
   color: #fff;
-  background: linear-gradient(140deg, #ffae45, var(--pink) 52%, var(--purple));
-  box-shadow: 0 0.6rem 1.4rem rgba(102, 84, 232, 0.25);
+  background: linear-gradient(140deg, #e6bb53, var(--accent) 52%, var(--brand));
+  box-shadow: 0 0.6rem 1.4rem rgba(50, 91, 67, 0.2);
   font-size: 1.65rem;
   font-weight: 800;
 }
 
 .auth-card {
   overflow: hidden;
-  border-radius: 1.4rem;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 1.25rem 3.5rem rgba(55, 48, 112, 0.13);
 }
 
 .auth-eyebrow {
-  color: var(--purple);
+  color: var(--brand);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -74,40 +74,40 @@ body {
 
 .auth-card .form-control {
   min-height: 3.1rem;
-  border: 1px solid #e3e1f0;
+  border: 1px solid #dfe5df;
   border-radius: 0.8rem;
-  background-color: #fbfaff;
+  background-color: #fbfcf9;
 }
 
 .auth-card .form-control:focus {
-  border-color: #9588f0;
+  border-color: #77a386;
   background-color: #fff;
-  box-shadow: 0 0 0 0.22rem rgba(102, 84, 232, 0.14);
+  box-shadow: 0 0 0 0.22rem rgba(62, 107, 82, 0.14);
 }
 
 .auth-card .btn-primary {
   border: 0;
   border-radius: 0.8rem;
-  background: linear-gradient(105deg, var(--purple), #9b55d7 58%, var(--pink));
-  box-shadow: 0 0.55rem 1.2rem rgba(102, 84, 232, 0.2);
+  background: linear-gradient(105deg, #315d45, var(--brand) 58%, var(--accent));
+  box-shadow: 0 0.55rem 1.2rem rgba(50, 91, 67, 0.2);
   font-weight: 700;
   transition: transform 150ms ease, box-shadow 150ms ease;
 }
 
 .auth-card .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 0.75rem 1.4rem rgba(102, 84, 232, 0.28);
+  box-shadow: 0 0.75rem 1.4rem rgba(50, 91, 67, 0.28);
 }
 
 .auth-card a {
-  color: #5948cf;
+  color: #315d45;
   font-weight: 650;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.18em;
 }
 
 .auth-card a:hover {
-  color: #d94383;
+  color: #b94f39;
 }
 
 .auth-card .alert {
@@ -1332,9 +1332,16 @@ body {
 .store-hero-art {
   position: relative;
   min-height: 300px;
+  overflow: hidden;
+  border-radius: 3px;
+  background-image: linear-gradient(180deg, rgba(28, 33, 27, 0.02), rgba(28, 33, 27, 0.16)),
+    url("https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=85");
+  background-position: center 36%;
+  background-size: cover;
 }
 
 .sun-shape {
+  display: none;
   position: absolute;
   top: 0.25rem;
   right: 2rem;
@@ -1345,6 +1352,7 @@ body {
 }
 
 .hero-vase {
+  display: none;
   position: absolute;
   right: 7.3rem;
   bottom: 1rem;
@@ -1367,6 +1375,7 @@ body {
 }
 
 .hero-mug {
+  display: none;
   position: absolute;
   right: 0.6rem;
   bottom: 1.3rem;
@@ -1390,6 +1399,7 @@ body {
 }
 
 .hero-book {
+  display: none;
   position: absolute;
   bottom: 0;
   left: 0.5rem;
@@ -1530,6 +1540,12 @@ body {
   font-family: Georgia, serif;
   font-size: 4rem;
   font-weight: 700;
+}
+
+.product-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .product-art span {

@@ -1,5 +1,13 @@
 accounts.sqlite3
 accounts.sqlite3-shm
 accounts.sqlite3-wal
+yellow_store.sqlite3
+yellow_store.sqlite3-shm
+yellow_store.sqlite3-wal
 auth.json
+.env
+*.py[cod]
+__pycache__/
+.pytest_cache/
+.ruff_cache/
 __pycache__/
