@@ -54,8 +54,9 @@ deployment; the application does not mutate schema at startup.
 ## Accounts and admin access
 
 Public sign-up always creates customer accounts. Promote a separately created
-owner account with `python -m backend.cli make-admin owner@example.com`. Do not
-use customer sign-up as an administrator bootstrap mechanism.
+owner account with `python -m backend.cli make-admin owner@example.com`, then
+sign in at `/admin/signin`. Do not use customer sign-up as an administrator
+bootstrap mechanism.
 
 ## API
 

@@ -109,7 +109,7 @@ def home(request: Request, session: Session = Depends(get_session), settings: Se
     record = get_session_record(session, request.cookies.get(settings.session_cookie_name, ""))
     if record and record.user_id:
         if user := store_service(session).get_user(record.user_id):
-            return RedirectResponse("/account" if user.role.value == "admin" else "/shop", status_code=303)
+            return RedirectResponse("/admin" if user.role.value == "admin" else "/shop", status_code=303)
     response = RedirectResponse("/signin", status_code=303)
     csrf_for_request(request, response, session, settings)
     return response
@@ -143,13 +143,53 @@ def signin_submit(
 ):
     check_csrf(request, session, settings, csrf_token)
     user = store_service(session).authenticate(email, password)
-    if user is None:
+    if user is None or user.role.value != "customer":
         return RedirectResponse("/signin?error=true", status_code=303)
     token, _csrf = replace_session(
         session, request.cookies.get(settings.session_cookie_name, ""),
         user.id, settings.session_lifetime_seconds,
     )
-    response = RedirectResponse("/account" if user.role.value == "admin" else "/shop", status_code=303)
+    response = RedirectResponse("/shop", status_code=303)
+    response.set_cookie(settings.session_cookie_name, token, max_age=settings.session_lifetime_seconds,
+                        httponly=True, secure=settings.secure_cookies, samesite="lax", path="/")
+    return response
+
+
+@router.get("/admin/signin", response_class=HTMLResponse)
+def admin_signin_page(
+    request: Request, error: bool = False, session: Session = Depends(get_session),
+    settings: Settings = Depends(get_settings),
+):
+    record = get_session_record(session, request.cookies.get(settings.session_cookie_name, ""))
+    if record and record.user_id:
+        user = store_service(session).get_user(record.user_id)
+        if user:
+            return RedirectResponse("/admin" if user.role.value == "admin" else "/shop", status_code=303)
+    cookie_response = Response()
+    csrf = csrf_for_request(request, cookie_response, session, settings)
+    page = templates.TemplateResponse(request, "admin_signin.html", {
+        "csrf_token": csrf,
+        "notice": Markup('<div class="alert alert-danger">Administrator email or password is incorrect.</div>') if error else Markup(""),
+    })
+    if cookie_response.headers.get("set-cookie"):
+        page.headers.append("set-cookie", cookie_response.headers["set-cookie"])
+    return page
+
+
+@router.post("/admin/signin")
+def admin_signin_submit(
+    request: Request, email: str = Form(), password: str = Form(), csrf_token: str = Form(),
+    session: Session = Depends(get_session), settings: Settings = Depends(get_settings),
+):
+    check_csrf(request, session, settings, csrf_token)
+    user = store_service(session).authenticate(email, password)
+    if user is None or user.role.value != "admin":
+        return RedirectResponse("/admin/signin?error=true", status_code=303)
+    token, _csrf = replace_session(
+        session, request.cookies.get(settings.session_cookie_name, ""),
+        user.id, settings.session_lifetime_seconds,
+    )
+    response = RedirectResponse("/admin", status_code=303)
     response.set_cookie(settings.session_cookie_name, token, max_age=settings.session_lifetime_seconds,
                         httponly=True, secure=settings.secure_cookies, samesite="lax", path="/")
     return response
@@ -305,15 +345,27 @@ def logout(
 ):
     check_csrf(request, session, settings, csrf_token)
     delete_session(session, request.cookies.get(settings.session_cookie_name, ""))
-    response = RedirectResponse("/signin", status_code=303)
+    response = RedirectResponse("/admin/signin" if user.role.value == "admin" else "/signin", status_code=303)
     response.delete_cookie(settings.session_cookie_name, path="/")
     return response
 
 
-@router.get("/account", response_class=HTMLResponse)
-def account_page(request: Request, user: User = Depends(get_current_user), session: Session = Depends(get_session)):
+@router.get("/account")
+def account_redirect(user: User = Depends(get_current_user)):
+    return RedirectResponse("/admin" if user.role.value == "admin" else "/shop", status_code=303)
+
+
+@router.get("/admin", response_class=HTMLResponse)
+def account_page(
+    request: Request, session: Session = Depends(get_session), settings: Settings = Depends(get_settings),
+):
+    record = get_session_record(session, request.cookies.get(settings.session_cookie_name, ""))
+    user = store_service(session).get_user(record.user_id) if record and record.user_id else None
+    if user is None:
+        return RedirectResponse("/admin/signin", status_code=303)
     if user.role.value != "admin":
         return RedirectResponse("/shop", status_code=303)
+    request.state.csrf_token = record.csrf_token
     order_count, revenue = session.execute(select(
         func.count(OrderModel.id), func.coalesce(func.sum(OrderModel.total_cents), 0)
     )).one()

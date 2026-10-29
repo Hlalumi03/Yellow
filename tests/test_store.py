@@ -62,6 +62,12 @@ class StoreApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 201, response.text)
         return response.json()["csrf_token"]
 
+    def sign_out(self, csrf_token: str) -> None:
+        response = self.client.delete(
+            "/api/v1/auth/session", headers={"X-CSRF-Token": csrf_token},
+        )
+        self.assertEqual(response.status_code, 204, response.text)
+
     def test_product_catalog_and_storefront_render(self) -> None:
         products = self.client.get("/api/v1/products")
         self.assertEqual(products.status_code, 200)
@@ -72,6 +78,63 @@ class StoreApiTests(unittest.TestCase):
         self.assertEqual(page.status_code, 200)
         self.assertIn("Relaxed linen shirt", page.text)
         self.assertIn(csrf, page.text)
+
+    def test_customer_cannot_sign_in_through_admin_portal(self) -> None:
+        csrf = self.signup()
+        self.sign_out(csrf)
+
+        page = self.client.get("/admin/signin")
+        self.assertEqual(page.status_code, 200)
+        self.assertIn("Administrator sign in", page.text)
+        csrf = self.client.get("/api/v1/auth/csrf").json()["csrf_token"]
+        response = self.client.post(
+            "/admin/signin",
+            data={
+                "email": "customer@example.com",
+                "password": "correct horse battery staple",
+                "csrf_token": csrf,
+            },
+            follow_redirects=False,
+        )
+        self.assertEqual(response.status_code, 303)
+        self.assertEqual(response.headers["location"], "/admin/signin?error=true")
+
+    def test_admin_can_sign_in_through_admin_portal_only(self) -> None:
+        csrf = self.signup()
+        with self.session_factory() as session:
+            admin = session.scalar(select(UserModel).where(UserModel.email == "customer@example.com"))
+            admin.role = "admin"
+            session.commit()
+        self.sign_out(csrf)
+
+        csrf = self.client.get("/api/v1/auth/csrf").json()["csrf_token"]
+        customer_signin = self.client.post(
+            "/signin",
+            data={
+                "email": "customer@example.com",
+                "password": "correct horse battery staple",
+                "csrf_token": csrf,
+            },
+            follow_redirects=False,
+        )
+        self.assertEqual(customer_signin.status_code, 303)
+        self.assertEqual(customer_signin.headers["location"], "/signin?error=true")
+
+        csrf = self.client.get("/api/v1/auth/csrf").json()["csrf_token"]
+        admin_signin = self.client.post(
+            "/admin/signin",
+            data={
+                "email": "customer@example.com",
+                "password": "correct horse battery staple",
+                "csrf_token": csrf,
+            },
+            follow_redirects=False,
+        )
+        self.assertEqual(admin_signin.status_code, 303)
+        self.assertEqual(admin_signin.headers["location"], "/admin")
+        dashboard = self.client.get("/admin", follow_redirects=False)
+        self.assertEqual(dashboard.status_code, 200)
+        self.assertIn("STORE OVERVIEW", dashboard.text)
 
     def test_customer_can_add_to_cart_and_checkout(self) -> None:
         csrf = self.signup()
